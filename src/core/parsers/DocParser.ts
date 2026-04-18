@@ -1,6 +1,5 @@
 import * as xlsx from 'xlsx';
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-import pdf = require('pdf-parse');
+import { PDFParse } from 'pdf-parse';
 
 export class DocParser {
     
@@ -11,9 +10,9 @@ export class DocParser {
         try {
             // Buffer.from is safe in Node and VS Code environment
             // pdf-parse v2+ exports a PDFParse class constructor requiring Uint8Array
-            const pdfInstance = new (pdf as any).PDFParse(data);
-            const text = await pdfInstance.getText();
-            return text || "";
+            const pdfInstance = new PDFParse(data);
+            const result = await pdfInstance.getText();
+            return result.text || "";
         } catch (e) {
             console.error('PDF parsing failed:', e);
             return `[PDF Parsing Error]`;
