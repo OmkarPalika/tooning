@@ -50,10 +50,18 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Publish to NPM
+      - name: Publish to NPM (Global)
         run: |
           node -e "const pkg = require('./package.json'); pkg.name = '@omkarpalika/tooning'; require('fs').writeFileSync('package.json', JSON.stringify(pkg, null, 2))"
           npm config set //registry.npmjs.org/:_authToken ${NPM_TOKEN}
           npm publish --access public
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish to GitHub Packages
+        run: |
+          node -e "const pkg = require('./package.json'); pkg.name = '@omkarpalika/tooning'; require('fs').writeFileSync('package.json', JSON.stringify(pkg, null, 2))"
+          npm config set //npm.pkg.github.com/:_authToken ${GITHUB_TOKEN}
+          npm publish --registry https://npm.pkg.github.com
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
