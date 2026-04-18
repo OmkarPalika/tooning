@@ -66,7 +66,7 @@ export class ToonEncoder {
             for (const att of attachments) {
                 try {
                     const fullPath = fs.join(rootPath, att);
-                    const security = SecurityManager.validate(fullPath, rootPath);
+                    const security = await SecurityManager.validate(fullPath, rootPath);
                     if (!security.safe) continue;
 
                     const content = await fs.readFile(fullPath);
