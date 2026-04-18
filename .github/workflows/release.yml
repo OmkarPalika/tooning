@@ -50,6 +50,7 @@ jobs:
 
       - name: Publish to NPM
         run: |
+          node -e "const pkg = require('./package.json'); pkg.name = '@omkarpalika/tooning'; require('fs').writeFileSync('package.json', JSON.stringify(pkg, null, 2))"
           npm config set //registry.npmjs.org/:_authToken ${NPM_TOKEN}
           npm publish --access public
         env:
