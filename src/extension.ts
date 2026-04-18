@@ -4,6 +4,7 @@ import { IndexStore } from './indexer/IndexStore';
 import { IndexScheduler } from './indexer/IndexScheduler';
 import { HistoryStore } from './history/HistoryStore';
 import { SidebarProvider } from './ui/SidebarProvider';
+import { WatcherService } from './core/WatcherService';
 
 export async function activate(context: vscode.ExtensionContext) {
     Logger.initialize(context);
@@ -14,6 +15,18 @@ export async function activate(context: vscode.ExtensionContext) {
 
     const historyStore = new HistoryStore(context);
     await historyStore.initialize();
+
+    // 2. Watcher Service (V6 Incremental)
+    const config = vscode.workspace.getConfiguration('tooning');
+    const indexMode = config.get<string>('indexMode', 'realtime');
+    let watcher: WatcherService | null = null;
+    
+    if (indexMode === 'realtime' && vscode.workspace.workspaceFolders?.[0]) {
+        const rootPath = vscode.workspace.workspaceFolders[0].uri.fsPath;
+        watcher = new WatcherService(indexStore, rootPath);
+        watcher.start();
+        Logger.log('Real-time indexing watcher active.');
+    }
 
     const scheduler = new IndexScheduler(indexStore);
     scheduler.start();

@@ -134,4 +134,54 @@ export class IndexStore {
     public getIndex(): FileEntry[] {
         return Array.from(this.memoryIndex.values());
     }
+
+    /**
+     * Incrementally updates the index for a single file.
+     */
+    public async updateFileEntry(filePath: string) {
+        const config = vscode.workspace.getConfiguration('tooning');
+        const rootPath = vscode.workspace.workspaceFolders?.[0].uri.fsPath;
+        if (!rootPath) return;
+
+        const fs = new VsCodeFileSystem();
+        const entry = await FileScanner.scanSingleFile(fs, filePath, {
+            maxFileSizeKB: config.get<number>('maxFileSizeKB', 500),
+            rootPath: rootPath
+        });
+
+        if (entry) {
+            this.memoryIndex.set(entry.path, entry);
+            this.lastIndexedTime = Date.now();
+            this.schedulePersist();
+            
+            // Notify UI (simulated totalRawTokens update)
+            const allFiles = this.getIndex();
+            const totalRawTokens = allFiles.reduce((acc, f) => acc + Tokenizer.estimateTokens(f.symbols.map(s => s.name).join(' ')), 0);
+            const toonStr = ToonEncoder.encodeIndex(allFiles, config.get<number>('maxContextTokens', 16000));
+            const toonTokens = Tokenizer.estimateTokens(toonStr);
+            
+            this._onDidFinishIndexing.fire({ rawTokens: totalRawTokens, toonTokens: toonTokens });
+            Logger.log(`Incrementally updated: ${entry.path}`);
+        }
+    }
+
+    /**
+     * Removes a single file from the index.
+     */
+    public async removeFileEntry(relativePath: string) {
+        if (this.memoryIndex.has(relativePath)) {
+            this.memoryIndex.delete(relativePath);
+            this.lastIndexedTime = Date.now();
+            this.schedulePersist();
+            
+            const config = vscode.workspace.getConfiguration('tooning');
+            const allFiles = this.getIndex();
+            const totalRawTokens = allFiles.reduce((acc, f) => acc + Tokenizer.estimateTokens(f.symbols.map(s => s.name).join(' ')), 0);
+            const toonStr = ToonEncoder.encodeIndex(allFiles, config.get<number>('maxContextTokens', 16000));
+            const toonTokens = Tokenizer.estimateTokens(toonStr);
+
+            this._onDidFinishIndexing.fire({ rawTokens: totalRawTokens, toonTokens: toonTokens });
+            Logger.log(`Incrementally removed: ${relativePath}`);
+        }
+    }
 }

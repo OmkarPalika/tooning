@@ -16,12 +16,16 @@ async function main() {
         .option('-q, --query <text>', 'User query for semantic reranking')
         .option('-m, --max-tokens <number>', 'Maximum TOON tokens', '16000')
         .option('-x, --exclude <patterns>', 'Comma separated exclusion patterns')
+        .option('-w, --watch', 'Enable real-time file watching (Incremental Indexing)')
         .action(async (path, options) => {
             const root = resolve(path);
             const fs = new NodeFileSystem();
             const maxTokens = parseInt(options.maxTokens, 10);
             const excludeGlobs = options.exclude ? options.exclude.split(',') : ['**/node_modules/**', '**/.git/**'];
             const query = options.query || "";
+
+            const { IndexStore } = require('../indexer/IndexStore'); 
+            const { WatcherService } = require('../core/WatcherService');
 
             try {
                 // Console.error for logs so stdout stays clean for piping
@@ -41,8 +45,21 @@ async function main() {
                 
                 // Print the final TOON to stdout for piping
                 process.stdout.write(toon);
-                
                 console.error(`\n✅ TOON generated successfully (${entries.length} items).`);
+
+                if (options.watch) {
+                    // Create a dummy/mock VS Code env if needed, or refactor IndexStore to be truly independent
+                    // For now, simple console-based watch
+                    console.error('🔍 Watch mode active. Press Ctrl+C to stop.');
+                    const store = new IndexStore({ globalStorageUri: { fsPath: '.' } } as any);
+                    await store.initialize();
+                    const watcher = new WatcherService(store, root);
+                    watcher.start();
+                    
+                    // Keep process alive
+                    await new Promise(() => {}); 
+                }
+                
             } catch (err) {
                 console.error(`❌ Error: ${err}`);
                 process.exit(1);

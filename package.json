@@ -2,7 +2,7 @@
   "name": "tooning",
   "displayName": "Tooning: AI Codebase Chat",
   "description": "Convert natural language queries to TOON by indexing your entire codebase.",
-  "version": "5.0.0",
+  "version": "6.0.0",
   "publisher": "omkar",
   "bin": {
     "toon": "./dist/bin/toon.js"
@@ -115,12 +115,13 @@
         "tooning.indexMode": {
           "type": "string",
           "enum": [
+            "realtime",
             "interval",
             "onSave",
             "manual"
           ],
-          "default": "onSave",
-          "description": "When to update the codebase index."
+          "default": "realtime",
+          "description": "When to update the codebase index. 'realtime' uses a background viewer for instant updates."
         },
         "tooning.indexInterval": {
           "type": "number",
@@ -186,6 +187,7 @@
   },
   "dependencies": {
     "@vscode/webview-ui-toolkit": "^1.4.0",
+    "chokidar": "^5.0.0",
     "commander": "^14.0.3",
     "ignore": "^7.0.5",
     "js-tiktoken": "^1.0.21",

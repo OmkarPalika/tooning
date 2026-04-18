@@ -18,14 +18,12 @@ export class FileScanner {
         let totalRawTokens = 0;
 
         Logger.log('Starting industry-grade universal scan...');
-        const maxSize = config.maxFileSizeKB * 1024;
         const startTime = Date.now();
 
         // 1. Discovery
         const allFiles = await fs.findFiles('**/*');
         const ig = ignore().add(config.excludeGlobs);
         
-        // Try to load .gitignore from root
         try {
             const gitignorePath = fs.join(config.rootPath, '.gitignore');
             const contents = await fs.readFile(gitignorePath);
@@ -33,18 +31,8 @@ export class FileScanner {
         } catch (e) { /* ignore */ }
 
         const allowedFiles = allFiles.filter(filePath => {
-            // Very basic relative path logic for CLI compatibility
             const relativePath = filePath.replace(config.rootPath, '').replace(/^[\\\/]/, '');
-            if (ig.ignores(relativePath)) return false;
-
-            // SECURITY GATE (Validation bypass for CLI if needed, or implement it in core)
-            // For now, we assume SecurityManager handles it if accessible
-            try {
-                const security = SecurityManager.validate(filePath);
-                if (!security.safe) return false;
-            } catch (e) { /* skip if SecurityManager isn't fully portable yet */ }
-            
-            return true;
+            return !ig.ignores(relativePath);
         });
 
         const totalFiles = allowedFiles.length;
@@ -57,43 +45,11 @@ export class FileScanner {
             const chunk = allowedFiles.slice(i, i + chunkSize);
             
             await Promise.all(chunk.map(async (filePath) => {
-                try {
-                    const stats = await fs.stat(filePath);
-                    if (stats.size > maxSize) return;
-
-                    const isDoc = DocParser.isSupported(filePath);
-                    const lang = !isDoc ? this.inferLanguage(filePath) : 'document';
-                    
-                    if (!lang && !isDoc) return;
-
-                    let content = "";
-                    let symbols: any[] = [];
-
-                    if (isDoc) {
-                        const bin = await fs.readBinary(filePath);
-                        content = filePath.toLowerCase().endsWith('.pdf') 
-                            ? await DocParser.parsePdf(bin)
-                            : DocParser.parseExcel(bin);
-                        
-                        // Treat docs as one giant symbol for now
-                        symbols = [{ type: 'variable', name: 'Document Content', lineRange: '1-1' }];
-                    } else {
-                        content = await fs.readFile(filePath);
-                        symbols = await SymbolExtractor.extractSymbols(filePath, lang!, content);
-                    }
-
-                    const rawTokens = Tokenizer.estimateTokens(content);
-                    totalRawTokens += rawTokens;
-
-                    entries.push({
-                        path: filePath.replace(config.rootPath, '').replace(/^[\\\/]/, ''),
-                        language: lang || 'unknown',
-                        size: stats.size,
-                        lastModified: stats.mtime,
-                        symbols: symbols
-                    });
-                } catch (e) {
-                    Logger.error(`Skipping ${filePath}: ${e}`);
+                const entry = await this.scanSingleFile(fs, filePath, config);
+                if (entry) {
+                    entries.push(entry);
+                    // Estimate tokens again for summary
+                    totalRawTokens += Tokenizer.estimateTokens(entry.symbols.map(s => s.name).join(' ')); // approximation or store it
                 }
             }));
             
@@ -105,6 +61,54 @@ export class FileScanner {
 
         Logger.log(`Successfully extracted symbols/text from ${entries.length} items.`);
         return { entries, totalRawTokens };
+    }
+
+    /**
+     * Scans a single file and returns a FileEntry, or null if skipped/unsupported.
+     */
+    public static async scanSingleFile(
+        fs: IFileSystem, 
+        filePath: string, 
+        config: { maxFileSizeKB: number, rootPath: string }
+    ): Promise<FileEntry | null> {
+        try {
+            // SECURITY GATE
+            const security = SecurityManager.validate(filePath);
+            if (!security.safe) return null;
+
+            const stats = await fs.stat(filePath);
+            if (stats.size > config.maxFileSizeKB * 1024) return null;
+
+            const isDoc = DocParser.isSupported(filePath);
+            const lang = !isDoc ? this.inferLanguage(filePath) : 'document';
+            
+            if (!lang && !isDoc) return null;
+
+            let content = "";
+            let symbols: any[] = [];
+
+            if (isDoc) {
+                const bin = await fs.readBinary(filePath);
+                content = filePath.toLowerCase().endsWith('.pdf') 
+                    ? await DocParser.parsePdf(bin)
+                    : DocParser.parseExcel(bin);
+                symbols = [{ type: 'variable', name: 'Document Content', lineRange: '1-1' }];
+            } else {
+                content = await fs.readFile(filePath);
+                symbols = await SymbolExtractor.extractSymbols(filePath, lang!, content);
+            }
+
+            return {
+                path: filePath.replace(config.rootPath, '').replace(/^[\\\/]/, ''),
+                language: lang || 'unknown',
+                size: stats.size,
+                lastModified: stats.mtime,
+                symbols: symbols
+            };
+        } catch (e) {
+            Logger.error(`Error scanning ${filePath}: ${e}`);
+            return null;
+        }
     }
 
     private static inferLanguage(filePath: string): string | null {
