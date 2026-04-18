@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tooning Chat</title>
+    <!-- INJECT_CSS -->
+</head>
+<body>
+    <div id="indexing-status" style="display: none; padding: 12px 16px; font-size: 11px; opacity: 0.8; align-items: center; gap: 8px; background: var(--vscode-editor-background); border-bottom: 1px solid var(--vscode-widget-border);">
+        <vscode-progress-ring style="width: 14px; height: 14px;"></vscode-progress-ring>
+        <span id="indexing-text">Scanning codebase...</span>
+    </div>
+
+    <!-- TOON Efficiency Dashboard -->
+    <div id="efficiency-dashboard" class="hidden">
+        <div class="dashboard-header">
+            <span>TOON Efficiency Stats</span>
+            <div style="display: flex; gap: 4px;">
+                <span id="reranking-badge" style="background: var(--vscode-charts-purple); color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; display: none;">Deep Reranked</span>
+                <span id="savings-badge">99% Saving</span>
+            </div>
+        </div>
+        <div class="dashboard-body">
+            <div class="metric">
+                <label>Raw Context</label>
+                <div class="bar-container"><div id="raw-bar" class="bar"></div></div>
+                <span id="raw-val">0 tokens</span>
+            </div>
+            <div class="metric">
+                <label>TOON Context</label>
+                <div class="bar-container"><div id="toon-bar" class="bar highlight"></div></div>
+                <span id="toon-val">0 tokens</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="chat-container">
+        <!-- Messages will go here -->
+    </div>
+    <div class="input-container">
+        <div class="input-wrapper">
+            <vscode-text-area id="prompt-input" rows="1" placeholder="Ask or @filename..." resize="none"></vscode-text-area>
+            <div id="autocomplete-popup" class="hidden"></div>
+        </div>
+        <vscode-button id="send-btn" appearance="primary">Send</vscode-button>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- INJECT_JS -->
+</body>
+</html>
