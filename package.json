@@ -10,6 +10,7 @@
     "dist",
     "src/ui/webview",
     "icon.png",
+    "LICENSE",
     "CHANGELOG.md",
     "README.md"
   ],
