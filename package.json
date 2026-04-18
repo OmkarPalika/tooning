@@ -2,16 +2,32 @@
   "name": "tooning",
   "displayName": "Tooning: AI Codebase Chat",
   "description": "Convert natural language queries to TOON by indexing your entire codebase.",
-  "version": "8.0.0",
-  "publisher": "omkar",
+  "version": "0.1.0",
+  "publisher": "OmkarPalika",
+  "icon": "icon.png",
   "bin": {
     "toon": "./dist/bin/toon.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/OmkarPalika/tooning"
   },
   "engines": {
     "vscode": "^1.80.0"
   },
   "categories": [
+    "Programming Languages",
+    "Machine Learning",
     "Other"
+  ],
+  "keywords": [
+    "ai",
+    "chat",
+    "codebase",
+    "indexing",
+    "semantic",
+    "reranking",
+    "toon"
   ],
   "activationEvents": [],
   "main": "./dist/extension.js",
