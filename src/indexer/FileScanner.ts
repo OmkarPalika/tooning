@@ -1,7 +1,7 @@
 import { IFileSystem } from '../core/fs/IFileSystem';
 import { DocParser } from '../core/parsers/DocParser';
 import { Logger } from '../utils/Logger';
-import { SymbolExtractor, FileEntry } from './SymbolExtractor';
+import { SymbolExtractor, FileEntry, SymbolEntry } from './SymbolExtractor';
 import { posix } from 'path';
 import ignore from 'ignore';
 import { SecurityManager } from '../utils/SecurityManager';

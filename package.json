@@ -2,7 +2,7 @@
   "name": "tooning",
   "displayName": "Tooning: AI Codebase Chat",
   "description": "Convert natural language queries to TOON by indexing your entire codebase.",
-  "version": "9.0.0",
+  "version": "1.0.0",
   "publisher": "OmkarPalika",
   "icon": "icon.png",
   "bin": {
