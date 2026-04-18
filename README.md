@@ -1,7 +1,7 @@
 # 🗿 Tooning: AI Codebase Chat
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/Version-11.0.2-blue.png)](https://marketplace.visualstudio.com/manage/publishers/OmkarPalika/extensions/tooning/hub)
+[![Version](https://img.shields.io/badge/Version-11.1.0-blue.png)](https://marketplace.visualstudio.com/manage/publishers/OmkarPalika/extensions/tooning/hub)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/OmkarPalika/tooning/ci.yml?branch=master&logo=github&label=Build&format=png)](https://github.com/OmkarPalika/tooning/actions)
 
 **Tooning** is an industry-grade codebase analyzer and semantic context engine. It bridges the gap between your local source code and Large Language Models (LLMs) by converting complex project hierarchies into high-density **TOON payloads**.
