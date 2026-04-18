@@ -4,7 +4,7 @@ export class Logger {
     public static initialize(context: any) {
         if (!this.channel) {
             try {
-                // Inline require to avoid top-level dependency crash in Node
+                // eslint-disable-next-line @typescript-eslint/no-require-imports
                 const vscode = require('vscode');
                 this.channel = vscode.window.createOutputChannel('Tooning');
                 context.subscriptions.push(this.channel);

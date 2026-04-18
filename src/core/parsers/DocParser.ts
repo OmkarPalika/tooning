@@ -12,6 +12,7 @@ export class DocParser {
     public static async parsePdf(data: Uint8Array): Promise<string> {
         try {
             const pdfInstance = new PDFParse(data);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const result = await pdfInstance.getText() as any;
             
             // Industry grade: Extract metadata if available to enrich context

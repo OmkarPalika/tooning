@@ -25,7 +25,8 @@ export class SecurityManager {
 
         // Override with VS Code settings if available
         try {
-            const vscode = require('vscode') as any;
+            // eslint-disable-next-line @typescript-eslint/no-require-imports
+            const vscode = (require('vscode') as any);
             if (vscode && vscode.workspace && vscode.workspace.getConfiguration) {
                 const config = vscode.workspace.getConfiguration('tooning.security');
                 allowSensitive = config.get('allowSensitiveFiles', false);
@@ -55,6 +56,7 @@ export class SecurityManager {
             let checkPath = fsPath;
             if (rootPath) {
                 // If we have a root, make it relative to avoid RangeError in 'ignore'
+                // eslint-disable-next-line @typescript-eslint/no-require-imports
                 const path = require('path');
                 checkPath = path.relative(rootPath, fsPath).replace(/\\/g, '/');
             } else {
