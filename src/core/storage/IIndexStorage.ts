@@ -2,7 +2,7 @@ export interface IIndexStorage {
     /**
      * Store a key-value pair.
      */
-    set(key: string, value: any): Promise<void>;
+    set(key: string, value: unknown): Promise<void>;
 
     /**
      * Retrieve a value by key.

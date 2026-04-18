@@ -12,7 +12,7 @@ export class VsCodeIndexStorage implements IIndexStorage {
         return vscode.Uri.joinPath(this.storageUri, `${key}.json`);
     }
 
-    public async set(key: string, value: any): Promise<void> {
+    public async set(key: string, value: unknown): Promise<void> {
         const uri = this.getUri(key);
         const data = Buffer.from(JSON.stringify(value, null, 2));
         await vscode.workspace.fs.writeFile(uri, data);

@@ -13,7 +13,7 @@ export class JsonFileIndexStorage implements IIndexStorage {
         return join(this.storageDir, `${key}.json`);
     }
 
-    public async set(key: string, value: any): Promise<void> {
+    public async set(key: string, value: unknown): Promise<void> {
         const filePath = this.getPath(key);
         await fs.mkdir(dirname(filePath), { recursive: true });
         await fs.writeFile(filePath, JSON.stringify(value, null, 2), 'utf-8');

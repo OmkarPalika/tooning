@@ -1,4 +1,5 @@
 import ignore from 'ignore';
+import * as path from 'path';
 
 export interface SecurityStatus {
     safe: boolean;
@@ -10,7 +11,7 @@ export class SecurityManager {
     /**
      * Validates if a file path is safe to read based on security settings.
      */
-    public static validate(fsPath: string, rootPath?: string): SecurityStatus {
+    public static async validate(fsPath: string, rootPath?: string): Promise<SecurityStatus> {
         // Standard defaults for CLI
         let allowSensitive = false;
         let allowOutside = true;
@@ -25,8 +26,13 @@ export class SecurityManager {
 
         // Override with VS Code settings if available
         try {
-            // eslint-disable-next-line @typescript-eslint/no-require-imports
-            const vscode = (require('vscode') as any);
+            const vscode = (await import('vscode')) as unknown as {
+                workspace: {
+                    getConfiguration(section: string): { get<T>(key: string, def?: T): T };
+                    getWorkspaceFolder(uri: unknown): unknown;
+                };
+                Uri: { file(path: string): unknown };
+            };
             if (vscode && vscode.workspace && vscode.workspace.getConfiguration) {
                 const config = vscode.workspace.getConfiguration('tooning.security');
                 allowSensitive = config.get('allowSensitiveFiles', false);
@@ -56,8 +62,6 @@ export class SecurityManager {
             let checkPath = fsPath;
             if (rootPath) {
                 // If we have a root, make it relative to avoid RangeError in 'ignore'
-                // eslint-disable-next-line @typescript-eslint/no-require-imports
-                const path = require('path');
                 checkPath = path.relative(rootPath, fsPath).replace(/\\/g, '/');
             } else {
                 // Fallback: just strip leading slash/drive if absolute

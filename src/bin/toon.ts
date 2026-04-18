@@ -98,10 +98,13 @@ async function main() {
             console.log('\n💬 Tooning CLI Chat (Type "exit" to quit)');
             console.log('------------------------------------------');
 
-            // eslint-disable-next-line no-constant-condition
-            while (true) {
+            let isRunning = true;
+            while (isRunning) {
                 const query = await rl.question('\n👤 You: ');
-                if (query.toLowerCase() === 'exit' || query.toLowerCase() === 'quit') break;
+                if (query.toLowerCase() === 'exit' || query.toLowerCase() === 'quit') {
+                    isRunning = false;
+                    continue;
+                }
 
                 console.log('\n🤖 Tooning index for context...');
                 try {

@@ -3,7 +3,6 @@ import { Tokenizer } from '../utils/Tokenizer';
 import { SecurityManager } from '../utils/SecurityManager';
 import { RelevanceEngine } from '../utils/RelevanceEngine';
 import { IFileSystem } from '../core/fs/IFileSystem';
-import { Logger } from '../utils/Logger';
 
 /**
  * Industry-grade context encoder.

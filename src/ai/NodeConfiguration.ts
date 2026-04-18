@@ -5,7 +5,7 @@ import { homedir } from 'os';
 
 export class NodeConfiguration implements IConfiguration {
     private configPath: string;
-    private data: Record<string, any> = {};
+    private data: Record<string, unknown> = {};
 
     constructor() {
         const dir = path.join(homedir(), '.tooning');
@@ -37,7 +37,7 @@ export class NodeConfiguration implements IConfiguration {
     }
 
     get<T>(key: string, defaultValue: T): T {
-        return this.data[key] !== undefined ? this.data[key] : defaultValue;
+        return this.data[key] !== undefined ? (this.data[key] as T) : defaultValue;
     }
 
     async set<T>(key: string, value: T): Promise<void> {

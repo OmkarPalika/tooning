@@ -12,7 +12,7 @@ import { VsCodeIndexStorage } from './core/storage/VsCodeIndexStorage';
 import { VsCodeConfiguration } from './ai/VsCodeConfiguration';
 
 export async function activate(context: vscode.ExtensionContext) {
-    Logger.initialize(context);
+    await Logger.initialize(context);
     
     // 1. Register high-fidelity VS Code symbol provider
     SymbolExtractor.setProvider(new VsCodeSymbolProvider());

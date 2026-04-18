@@ -32,7 +32,7 @@ export class IndexStore {
 
     public async initialize() {
         try {
-            const data = await this.storage.get<any>('index');
+            const data = await this.storage.get<{ timestamp?: number, entries?: Record<string, FileEntry> }>('index');
             if (data && data.entries) {
                 this.memoryIndex = new Map(Object.entries(data.entries));
                 this.lastIndexedTime = data.timestamp || 0;

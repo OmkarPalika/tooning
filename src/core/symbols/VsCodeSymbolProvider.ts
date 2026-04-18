@@ -16,7 +16,7 @@ export class VsCodeSymbolProvider implements ISymbolProvider {
                 this.parseDocSymbols(docSymbols, symbols);
                 return symbols;
             }
-        } catch (e) {
+        } catch {
             // Log or ignore
         }
         

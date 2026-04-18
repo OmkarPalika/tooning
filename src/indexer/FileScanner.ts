@@ -62,7 +62,7 @@ export class FileScanner {
     ): Promise<FileEntry | null> {
         try {
             // SECURITY GATE
-            const security = SecurityManager.validate(filePath, config.rootPath);
+            const security = await SecurityManager.validate(filePath, config.rootPath);
             if (!security.safe) return null;
 
             const stats = await fs.stat(filePath);

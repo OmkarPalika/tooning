@@ -1,13 +1,23 @@
-export class Logger {
-    private static channel: any; // Type as any to avoid vscode dependency
+interface OutputChannelLike {
+    appendLine(value: string): void;
+    show(preserveFocus?: boolean): void;
+}
 
-    public static initialize(context: any) {
+interface ContextLike {
+    subscriptions: { push(item: unknown): void };
+}
+
+export class Logger {
+    private static channel: OutputChannelLike | null = null;
+
+    public static async initialize(context: ContextLike) {
         if (!this.channel) {
             try {
-                // eslint-disable-next-line @typescript-eslint/no-require-imports
-                const vscode = require('vscode');
+                const vscode = await import('vscode');
                 this.channel = vscode.window.createOutputChannel('Tooning');
-                context.subscriptions.push(this.channel);
+                if (this.channel) {
+                    context.subscriptions.push(this.channel);
+                }
             } catch {
                 // Probably CLI environment, channel remains null
             }

@@ -24,7 +24,7 @@ export class SymbolExtractor {
     public static async extractSymbols(fsPath: string, languageId: string, content: string): Promise<SymbolEntry[]> {
         try {
             return await this.provider.extractSymbols(fsPath, languageId, content);
-        } catch (e: any) {
+        } catch {
             // Fallback to default if custom provider fails
             if (!(this.provider instanceof DefaultSymbolProvider)) {
                 return new DefaultSymbolProvider().extractSymbols(fsPath, languageId, content);
