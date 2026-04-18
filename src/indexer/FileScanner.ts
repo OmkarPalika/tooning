@@ -85,7 +85,7 @@ export class FileScanner {
             if (!lang && !isDoc) return null;
 
             let content = "";
-            let symbols: { type: string, name: string, lineRange: string }[] = [];
+            let symbols: SymbolEntry[] = [];
 
             if (isDoc) {
                 const bin = await fs.readBinary(filePath);

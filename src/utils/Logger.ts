@@ -23,11 +23,13 @@ export class Logger {
         if (this.channel) {
             const timestamp = new Date().toISOString();
             this.channel.appendLine(`[${timestamp}] ERROR: ${message}`);
-            if (err) {
-                this.channel.appendLine(err.toString());
+            if (err instanceof Error) {
+                this.channel.appendLine(err.message);
                 if (err.stack) {
                     this.channel.appendLine(err.stack);
                 }
+            } else if (err) {
+                this.channel.appendLine(String(err));
             }
             this.channel.show(true);
         } else {
