@@ -9,3 +9,5 @@ out/
 tooning_index.json
 *.log
 .vscode-test/
+*.js
+*.js.map
