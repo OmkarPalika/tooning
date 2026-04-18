@@ -1,0 +1,195 @@
+{
+  "name": "tooning",
+  "displayName": "Tooning: AI Codebase Chat",
+  "description": "Convert natural language queries to TOON by indexing your entire codebase.",
+  "version": "0.1.0",
+  "publisher": "omkar",
+  "bin": {
+    "toon": "./dist/bin/toon.js"
+  },
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "tooning-explorer",
+          "title": "Tooning",
+          "icon": "$(hubot)"
+        }
+      ]
+    },
+    "views": {
+      "tooning-explorer": [
+        {
+          "icon": "$(chat-read)",
+          "type": "webview",
+          "id": "tooning.chatView",
+          "name": "Chat"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "tooning.reindexWorkspace",
+        "title": "Tooning: Re-index Workspace",
+        "icon": "$(sync)"
+      },
+      {
+        "command": "tooning.clearHistory",
+        "title": "Tooning: Clear Chat History",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "tooning.analyzeSelection",
+        "title": "Tooning: Analyze Selection"
+      },
+      {
+        "command": "tooning.openSettings",
+        "title": "Tooning: Settings",
+        "icon": "$(settings-gear)"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "tooning.reindexWorkspace",
+          "when": "view == tooning.chatView",
+          "group": "navigation"
+        },
+        {
+          "command": "tooning.clearHistory",
+          "when": "view == tooning.chatView",
+          "group": "navigation"
+        },
+        {
+          "command": "tooning.openSettings",
+          "group": "navigation",
+          "when": "view == tooning.chatView"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "tooning.analyzeSelection",
+          "group": "modification",
+          "when": "editorHasSelection"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Tooning",
+      "properties": {
+        "tooning.provider": {
+          "type": "string",
+          "enum": [
+            "mistral",
+            "openai",
+            "anthropic",
+            "openrouter",
+            "ollama"
+          ],
+          "default": "mistral",
+          "description": "AI provider to use for Tooning."
+        },
+        "tooning.apiKey": {
+          "type": "string",
+          "default": "",
+          "description": "API Key for the selected provider (Leave blank for Ollama)."
+        },
+        "tooning.model": {
+          "type": "string",
+          "default": "mistral-large-latest",
+          "description": "Model ID to use."
+        },
+        "tooning.customBaseUrl": {
+          "type": "string",
+          "default": "http://localhost:11434/api/chat",
+          "description": "Custom Base URL (e.g. for Ollama or OpenRouter)."
+        },
+        "tooning.indexMode": {
+          "type": "string",
+          "enum": [
+            "interval",
+            "onSave",
+            "manual"
+          ],
+          "default": "onSave",
+          "description": "When to update the codebase index."
+        },
+        "tooning.indexInterval": {
+          "type": "number",
+          "default": 15,
+          "description": "Interval in minutes if indexMode is 'interval'."
+        },
+        "tooning.maxFileSizeKB": {
+          "type": "number",
+          "default": 500,
+          "description": "Skip files larger than this size (KB)."
+        },
+        "tooning.maxContextTokens": {
+          "type": "number",
+          "default": 16000,
+          "description": "Maximum tokens to send in the prompt."
+        },
+        "tooning.showRawToon": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show the raw TOON response in chat."
+        },
+        "tooning.security.allowSensitiveFiles": {
+          "type": "boolean",
+          "default": false,
+          "description": "If enabled, Tooning will ignore sensitive patterns (.env, keys) and include them."
+        },
+        "tooning.security.allowOutsideWorkspace": {
+          "type": "boolean",
+          "default": false,
+          "description": "If enabled, allows access to files outside of your workspace folders."
+        },
+        "tooning.security.sensitivePatterns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "**/*.env*",
+            "**/*.pem",
+            "**/*.key",
+            "**/id_rsa*",
+            "**/shadow",
+            "**/passwd"
+          ],
+          "description": "Glob patterns to identify sensitive files to be blocked."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "lint": "eslint src --ext ts"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "@types/vscode": "^1.116.0",
+    "@typescript-eslint/eslint-plugin": "^8.58.2",
+    "@typescript-eslint/parser": "^8.58.2",
+    "eslint": "^10.2.1",
+    "typescript": "^6.0.3"
+  },
+  "dependencies": {
+    "@vscode/webview-ui-toolkit": "^1.4.0",
+    "commander": "^14.0.3",
+    "ignore": "^7.0.5",
+    "js-tiktoken": "^1.0.21",
+    "pdf-parse": "^2.4.5",
+    "xlsx": "^0.18.5"
+  }
+}
