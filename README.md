@@ -1,8 +1,8 @@
 # 🗿 Tooning: AI Codebase Chat
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Marketplace](https://img.shields.io/visual-studio-marketplace/v/omkar.tooning.svg?label=VS%20Code)](https://marketplace.visualstudio.com/items?itemName=omkar.tooning)
-[![Build Status](https://img.shields.io/github/actions/workflow/status/omkar/tooning/ci.yml?branch=master)](https://github.com/omkar/tooning/actions)
+[![Marketplace](https://img.shields.io/visual-studio-marketplace/v/OmkarPalika.tooning.svg?label=VS%20Code)](https://marketplace.visualstudio.com/items?itemName=OmkarPalika.tooning)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/OmkarPalika/tooning/ci.yml?branch=master)](https://github.com/OmkarPalika/tooning/actions)
 
 **Tooning** is an industry-grade codebase analyzer and semantic reranking engine designed to bridge the gap between your local source code and Large Language Models (LLMs). It converts your complex project structure into high-density **TOON payloads**, optimized specifically for context-aware AI chat.
 
@@ -21,7 +21,7 @@
 ## 🛠️ Usage
 
 ### Within VS Code
-1. Install from the [Marketplace](https://marketplace.visualstudio.com/items?itemName=omkar.tooning).
+1. Install from the [Marketplace](https://marketplace.visualstudio.com/items?itemName=OmkarPalika.tooning).
 2. Open the **Tooning** panel in the Activity Bar.
 3. Chat with your codebase. Use `@filename` or `/command` to target specific areas.
 

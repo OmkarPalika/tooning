@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [9.0.0] - 2026-04-18
+### Added
+- Comprehensive marketplace metadata (tags, categories, repository links).
+- Official branding assets and Moai emoji integration.
+
+### Fixed
+- .vscodeignore patterns to correctly include build artifacts.
+- VS Code engine compatibility version alignment.
+
 ## [8.0.0] - 2026-04-18
 ### Added
 - Industry-standard open-source readiness assets.
