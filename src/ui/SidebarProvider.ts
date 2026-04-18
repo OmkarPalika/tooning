@@ -66,7 +66,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
 
         this.indexStore.onDidFinishIndexing(e => {
             if (this._view) {
-                const paths = this.indexStore.getIndex().map(f => f.path);
+                const paths = this.indexStore.getFiles().map(f => f.path);
                 this._view.webview.postMessage({ type: 'indexState', state: 'done' });
                 this._view.webview.postMessage({ type: 'fileList', files: paths });
                 this._view.webview.postMessage({ 
@@ -94,7 +94,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
             const matchAttachments = prompt.match(/@([\w/.-]+(?:\\\.[\w]+)*)/g);
             const attachments = matchAttachments ? matchAttachments.map(s => s.substring(1)) : [];
 
-            const indexFiles = this.indexStore.getIndex();
+            const indexFiles = this.indexStore.getFiles();
             
             // CONTEXT OPTIMIZATION: If the query is just a simple word/phrase (like "hi"),
             // don't waste 10k+ tokens on the codebase index.

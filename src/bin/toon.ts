@@ -6,6 +6,7 @@ import { ToonEncoder } from '../toon/ToonEncoder';
 import { resolve } from 'path';
 import { IndexStore } from '../indexer/IndexStore';
 import { WatcherService } from '../core/WatcherService';
+import { JsonFileIndexStorage } from '../core/storage/JsonFileIndexStorage';
 
 async function main() {
     const program = new Command();
@@ -13,7 +14,7 @@ async function main() {
     program
         .name('toon')
         .description('Convert your codebase to TOON notation for AI agents')
-        .version('0.1.0')
+        .version('10.0.1')
         .argument('[path]', 'path to scan', '.')
         .option('-q, --query <text>', 'User query for semantic reranking')
         .option('-m, --max-tokens <number>', 'Maximum TOON tokens', '16000')
@@ -47,12 +48,11 @@ async function main() {
                 console.error(`\n✅ TOON generated successfully (${entries.length} items).`);
 
                 if (options.watch) {
-                    // Create a dummy/mock VS Code env if needed, or refactor IndexStore to be truly independent
-                    // For now, simple console-based watch
                     console.error('🔍 Watch mode active. Press Ctrl+C to stop.');
-                    const store = new IndexStore({ globalStorageUri: { fsPath: '.' } } as never);
+                    const storage = new JsonFileIndexStorage(resolve(root, '.tooning'));
+                    const store = new IndexStore(storage, fs);
                     await store.initialize();
-                    const watcher = new WatcherService(store, root);
+                    const watcher = new WatcherService(store, root, { maxFileSizeKB: 500, rootPath: root });
                     watcher.start();
                     
                     // Keep process alive

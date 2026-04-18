@@ -40,10 +40,17 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: tooning.vsix
-          body_path: CHANGELOG.md # Or extract only latest from CHANGELOG
+          body_path: CHANGELOG.md
           draft: false
           prerelease: false
           name: Tooning v${{ steps.get_version.outputs.VERSION }}
           tag_name: ${{ github.ref_name }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish to NPM
+        run: |
+          npm config set //registry.npmjs.org/:_authToken ${NPM_TOKEN}
+          npm publish --access public
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

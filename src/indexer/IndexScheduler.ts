@@ -51,7 +51,12 @@ export class IndexScheduler {
         
         this.isIndexing = true;
         try {
-            await this.store.updateFullWorkspace();
+            const config = vscode.workspace.getConfiguration('tooning');
+            await this.store.updateFullWorkspace({
+                excludeGlobs: config.get<string[]>('excludeGlobs', ['**/node_modules/**', '**/.git/**']),
+                maxFileSizeKB: config.get<number>('maxFileSizeKB', 500),
+                rootPath: vscode.workspace.workspaceFolders?.[0].uri.fsPath || '.'
+            });
         } catch (e) {
             Logger.error('Scheduled index trigger failed', e);
         } finally {

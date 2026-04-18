@@ -7,10 +7,12 @@ export class WatcherService {
     private watcher: chokidar.FSWatcher | null = null;
     private indexStore: IndexStore;
     private rootPath: string;
+    private options: { maxFileSizeKB: number, rootPath: string };
 
-    constructor(indexStore: IndexStore, rootPath: string) {
+    constructor(indexStore: IndexStore, rootPath: string, options: { maxFileSizeKB: number, rootPath: string }) {
         this.indexStore = indexStore;
         this.rootPath = rootPath;
+        this.options = options;
     }
 
     public start() {
@@ -24,6 +26,7 @@ export class WatcherService {
                 '**/.git/**',
                 '**/dist/**',
                 '**/out/**',
+                '**/.tooning/**',
                 '**/tooning_index.json'
             ],
             persistent: true,
@@ -50,11 +53,11 @@ export class WatcherService {
 
     private async handleUpdate(absPath: string) {
         // We only care about files
-        await this.indexStore.updateFileEntry(absPath);
+        await this.indexStore.scanAndStoreFile(absPath, this.options);
     }
 
     private async handleDelete(absPath: string) {
         const relPath = relative(this.rootPath, absPath).replace(/\\/g, '/');
-        await this.indexStore.removeFileEntry(relPath);
+        await this.indexStore.removeFile(relPath);
     }
 }

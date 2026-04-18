@@ -5,46 +5,68 @@ import { IndexScheduler } from './indexer/IndexScheduler';
 import { HistoryStore } from './history/HistoryStore';
 import { SidebarProvider } from './ui/SidebarProvider';
 import { WatcherService } from './core/WatcherService';
+import { SymbolExtractor } from './indexer/SymbolExtractor';
+import { VsCodeSymbolProvider } from './core/symbols/VsCodeSymbolProvider';
+import { VsCodeFileSystem } from './core/fs/VsCodeFileSystem';
+import { VsCodeIndexStorage } from './core/storage/VsCodeIndexStorage';
 
 export async function activate(context: vscode.ExtensionContext) {
     Logger.initialize(context);
+    
+    // 1. Register high-fidelity VS Code symbol provider
+    SymbolExtractor.setProvider(new VsCodeSymbolProvider());
+    
     Logger.log('Tooning extension activating...');
 
-    const indexStore = new IndexStore(context);
+    const fs = new VsCodeFileSystem();
+    const storage = new VsCodeIndexStorage(context);
+    const indexStore = new IndexStore(storage, fs);
     await indexStore.initialize();
 
     const historyStore = new HistoryStore(context);
     await historyStore.initialize();
 
-    // 2. Watcher Service (V6 Incremental)
+    const getScanOptions = () => {
+        const cfg = vscode.workspace.getConfiguration('tooning');
+        return {
+            excludeGlobs: cfg.get<string[]>('excludeGlobs', ['**/node_modules/**', '**/.git/**']),
+            maxFileSizeKB: cfg.get<number>('maxFileSizeKB', 500),
+            rootPath: vscode.workspace.workspaceFolders?.[0].uri.fsPath || '.'
+        };
+    };
+
+    // 2. Watcher Service (Real-time indexing)
     const config = vscode.workspace.getConfiguration('tooning');
     const indexMode = config.get<string>('indexMode', 'realtime');
     let watcher: WatcherService | null = null;
     
     if (indexMode === 'realtime' && vscode.workspace.workspaceFolders?.[0]) {
         const rootPath = vscode.workspace.workspaceFolders[0].uri.fsPath;
-        watcher = new WatcherService(indexStore, rootPath);
+        watcher = new WatcherService(indexStore, rootPath, getScanOptions());
         watcher.start();
         Logger.log('Real-time indexing watcher active.');
     }
 
+    // 3. Scheduler Service
     const scheduler = new IndexScheduler(indexStore);
     scheduler.start();
 
-    // Trigger initial indexing
+    // Trigger initial indexing on load
     vscode.window.withProgress({ title: 'Tooning: Initial Indexing...', location: vscode.ProgressLocation.Window }, async () => {
         await scheduler.trigger();
     });
 
+    // 4. UI components
     const sidebarProvider = new SidebarProvider(context.extensionUri, indexStore, historyStore);
     context.subscriptions.push(
         vscode.window.registerWebviewViewProvider(SidebarProvider.viewType, sidebarProvider)
     );
 
+    // 5. Commands
     const reindexCommand = vscode.commands.registerCommand('tooning.reindex', async () => {
         Logger.log('Command invoked: tooning.reindex');
         vscode.window.showInformationMessage('Tooning: Reindexing workspace...');
-        await indexStore.updateFullWorkspace();
+        await indexStore.updateFullWorkspace(getScanOptions());
         vscode.window.showInformationMessage('Tooning: Reindexing complete.');
     });
 
@@ -66,10 +88,8 @@ export async function activate(context: vscode.ExtensionContext) {
         const startLine = selection.start.line + 1;
         const endLine = selection.end.line + 1;
 
-        // Force open the sidebar view
         await vscode.commands.executeCommand('tooning.chatView.focus');
 
-        // Give it a tiny delay to ensure the webview is ready if it wasn't open
         setTimeout(() => {
             const prompt = `Analyze this snippet (lines ${startLine}-${endLine}) in @${fileName}.\n\n\`\`\`\n${text}\n\`\`\``;
             sidebarProvider.handleUserPrompt(prompt);
@@ -87,6 +107,11 @@ export async function activate(context: vscode.ExtensionContext) {
         analyzeSelectionSubscription,
         openSettingsCommand
     );
+
+    if (watcher) {
+        context.subscriptions.push({ dispose: () => watcher?.stop() });
+    }
+
     Logger.log('Tooning extension activated successfully.');
 }
 
