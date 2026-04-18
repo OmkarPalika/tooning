@@ -8,6 +8,8 @@
   "icon": "icon.png",
   "files": [
     "dist",
+    "src/ui/webview",
+    "icon.png",
     "CHANGELOG.md",
     "README.md"
   ],
