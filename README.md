@@ -1,4 +1,4 @@
-# 🚀 Tooning: AI Codebase Chat
+# 🗿 Tooning: AI Codebase Chat
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Marketplace](https://img.shields.io/visual-studio-marketplace/v/omkar.tooning.svg?label=VS%20Code)](https://marketplace.visualstudio.com/items?itemName=omkar.tooning)
