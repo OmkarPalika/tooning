@@ -1,4 +1,5 @@
 import * as xlsx from 'xlsx';
+import pdfParse from 'pdf-parse';
 
 export class DocParser {
     
@@ -9,7 +10,6 @@ export class DocParser {
         try {
             // Buffer.from is safe in Node and VS Code environment
             const buffer = Buffer.from(data);
-            const pdfParse = require('pdf-parse');
             const result = await pdfParse(buffer);
             return result.text || "";
         } catch (e) {

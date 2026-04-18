@@ -51,7 +51,7 @@ export class ToonEncoder {
         // Sort files by query relevance so the 'best' context occupies the token budget first.
         const sortedFiles = RelevanceEngine.sortByRelevance(files, query);
         
-        let toonIdx = this.encodeIndex(sortedFiles, maxTokens - 3000); // Save a large buffer for full file attachments and query
+        const toonIdx = this.encodeIndex(sortedFiles, maxTokens - 3000); // Save a large buffer for full file attachments and query
 
         let attachText = '';
         if (attachments && attachments.length > 0) {
@@ -73,11 +73,11 @@ export class ToonEncoder {
                         try {
                             const content = await fs.readFile(fullPath);
                             attachText += `\n--- START ${att} ---\n${content}\n--- END ${att} ---\n`;
-                        } catch (e) {
+                        } catch {
                             // Not found
                         }
                     }
-                } catch (e) {
+                } catch {
                     // Fail silently for single attachment
                 }
             }

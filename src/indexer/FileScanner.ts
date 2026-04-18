@@ -28,10 +28,10 @@ export class FileScanner {
             const gitignorePath = fs.join(config.rootPath, '.gitignore');
             const contents = await fs.readFile(gitignorePath);
             ig.add(contents);
-        } catch (e) { /* ignore */ }
+        } catch { /* ignore */ }
 
         const allowedFiles = allFiles.filter(filePath => {
-            const relativePath = filePath.replace(config.rootPath, '').replace(/^[\\\/]/, '');
+            const relativePath = filePath.replace(config.rootPath, '').replace(/^[\\/]/, '');
             return !ig.ignores(relativePath);
         });
 
@@ -85,7 +85,7 @@ export class FileScanner {
             if (!lang && !isDoc) return null;
 
             let content = "";
-            let symbols: any[] = [];
+            let symbols: { type: string, name: string, lineRange: string }[] = [];
 
             if (isDoc) {
                 const bin = await fs.readBinary(filePath);
@@ -99,7 +99,7 @@ export class FileScanner {
             }
 
             return {
-                path: filePath.replace(config.rootPath, '').replace(/^[\\\/]/, ''),
+                path: filePath.replace(config.rootPath, '').replace(/^[\\/]/, ''),
                 language: lang || 'unknown',
                 size: stats.size,
                 lastModified: stats.mtime,

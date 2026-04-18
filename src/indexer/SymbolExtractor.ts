@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import { Logger } from '../utils/Logger';
 
 export interface FileEntry {
     path: string;
@@ -38,7 +37,7 @@ export class SymbolExtractor {
             // Priority 2: Fallback to regex for unsupported languages or in CLI mode
             return this.extractSymbolsRegex(content, languageId);
 
-        } catch (err) {
+        } catch {
             // Fail silently or log to non-vscode logger
             return this.extractSymbolsRegex(content, languageId);
         }
@@ -70,7 +69,7 @@ export class SymbolExtractor {
         }
     }
 
-    private static extractSymbolsRegex(content: string, languageId: string): SymbolEntry[] {
+    private static extractSymbolsRegex(content: string, _languageId: string): SymbolEntry[] {
         const symbols: SymbolEntry[] = [];
         const lines = content.split('\n');
 

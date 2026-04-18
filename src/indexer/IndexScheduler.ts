@@ -20,7 +20,7 @@ export class IndexScheduler {
             }
         });
 
-        vscode.workspace.onDidSaveTextDocument(async (doc) => {
+        vscode.workspace.onDidSaveTextDocument(async () => {
             const mode = vscode.workspace.getConfiguration('tooning').get<string>('indexMode', 'onSave');
             if (mode === 'onSave') {
                 await this.trigger();

@@ -8,7 +8,7 @@ export interface ToonQuery {
         ctx: string[]; // List of file paths to emphasize
         focus?: 'fn' | 'cls' | 'file' | 'all';
     };
-    idx: any[]; // The encoded index blocks
+    idx: unknown[]; // The encoded index blocks
 }
 
 export interface ToonResponse {

@@ -10,7 +10,7 @@ export class ChatGPTProvider implements AIProvider {
     ) {}
 
     private getHeaders() {
-        let headers: any = {
+        const headers: Record<string, string> = {
             'Content-Type': 'application/json'
         };
 
@@ -45,7 +45,7 @@ export class ChatGPTProvider implements AIProvider {
             throw new Error(`API Error: ${response.status} ${response.statusText}`);
         }
 
-        const data = await response.json() as any;
+        const data = await response.json() as { choices: { message: { content: string } }[] };
         return data.choices[0].message.content;
     }
 
@@ -92,7 +92,7 @@ export class ChatGPTProvider implements AIProvider {
                                     onChunk(delta.content);
                                 }
                             }
-                        } catch (e) {
+                        } catch {
                             // Incomplete chunk, or bad JSON, safely ignore and continue
                         }
                     }

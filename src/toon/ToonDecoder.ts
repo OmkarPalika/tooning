@@ -22,7 +22,7 @@ export class ToonDecoder {
                 const jsonStr = cleaned.substring(firstBrace, lastBrace + 1);
                 try {
                     return JSON.parse(jsonStr) as ToonResponse;
-                } catch (jsonErr) {
+                } catch {
                     // JSON parsing failed, likely malformed
                     Logger.log(`Failed to parse extracted JSON block: \n${jsonStr}`);
                 }
@@ -35,7 +35,7 @@ export class ToonDecoder {
                 const asJson = rCleaned.replace(/^r\{/, '{"r":{').replace(/}$/, '}}');
                 try {
                     return JSON.parse(asJson);
-                } catch (e) {
+                } catch {
                     // Fallthrough to throw
                 }
             }
@@ -43,8 +43,8 @@ export class ToonDecoder {
             // If no TOON-specific markers are found, return null to indicate a conversational response.
             return null;
 
-        } catch (e) {
-            Logger.error("Failed to decode TOON", e);
+        } catch {
+            Logger.error("Failed to decode TOON");
             return null;
         }
     }

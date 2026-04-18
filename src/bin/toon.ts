@@ -4,6 +4,8 @@ import { NodeFileSystem } from '../core/fs/NodeFileSystem';
 import { FileScanner } from '../indexer/FileScanner';
 import { ToonEncoder } from '../toon/ToonEncoder';
 import { resolve } from 'path';
+import { IndexStore } from '../indexer/IndexStore';
+import { WatcherService } from '../core/WatcherService';
 
 async function main() {
     const program = new Command();
@@ -23,9 +25,6 @@ async function main() {
             const maxTokens = parseInt(options.maxTokens, 10);
             const excludeGlobs = options.exclude ? options.exclude.split(',') : ['**/node_modules/**', '**/.git/**'];
             const query = options.query || "";
-
-            const { IndexStore } = require('../indexer/IndexStore'); 
-            const { WatcherService } = require('../core/WatcherService');
 
             try {
                 // Console.error for logs so stdout stays clean for piping
@@ -51,7 +50,7 @@ async function main() {
                     // Create a dummy/mock VS Code env if needed, or refactor IndexStore to be truly independent
                     // For now, simple console-based watch
                     console.error('🔍 Watch mode active. Press Ctrl+C to stop.');
-                    const store = new IndexStore({ globalStorageUri: { fsPath: '.' } } as any);
+                    const store = new IndexStore({ globalStorageUri: { fsPath: '.' } } as never);
                     await store.initialize();
                     const watcher = new WatcherService(store, root);
                     watcher.start();

@@ -21,8 +21,8 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
 
     public resolveWebviewView(
         webviewView: vscode.WebviewView,
-        context: vscode.WebviewViewResolveContext,
-        _token: vscode.CancellationToken,
+        _context: vscode.WebviewViewResolveContext,
+        __token: vscode.CancellationToken,
     ) {
         this._view = webviewView;
         webviewView.webview.options = {
@@ -142,7 +142,6 @@ Rules:
             
             // Streaming extraction
             let rawBuffer = "";
-            let startTime = Date.now();
             let isFirstChunk = true;
 
             const finalResponseContent = await provider.sendStream(toonQuery, systemPrompt, (chunk: string) => {
@@ -171,9 +170,9 @@ Rules:
             this.historyStore.addMessage({ role: 'assistant', content: finalMarkdown });
             this._view.webview.postMessage({ type: 'updateLastMessage', content: finalMarkdown, mode: 'final' });
 
-        } catch (e: any) {
+        } catch (e: unknown) {
             Logger.error("Error generating stream answer", e);
-            const errorMsg = `**Error:** ${e.message}`;
+            const errorMsg = `**Error:** ${e instanceof Error ? e.message : String(e)}`;
             this.historyStore.addMessage({ role: 'assistant', content: errorMsg });
             this._view.webview.postMessage({ type: 'updateLastMessage', content: errorMsg, mode: 'final' });
         }

@@ -19,7 +19,7 @@ export class Logger {
         }
     }
 
-    public static error(message: string, err?: any) {
+    public static error(message: string, err?: unknown) {
         if (this.channel) {
             const timestamp = new Date().toISOString();
             this.channel.appendLine(`[${timestamp}] ERROR: ${message}`);

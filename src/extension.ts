@@ -48,13 +48,13 @@ export async function activate(context: vscode.ExtensionContext) {
         vscode.window.showInformationMessage('Tooning: Reindexing complete.');
     });
 
-    let clearHistorySubscription = vscode.commands.registerCommand('tooning.clearHistory', () => {
+    const clearHistorySubscription = vscode.commands.registerCommand('tooning.clearHistory', () => {
         historyStore.clear();
         sidebarProvider.refreshHistory();
         vscode.window.showInformationMessage('Tooning history cleared.');
     });
 
-    let analyzeSelectionSubscription = vscode.commands.registerCommand('tooning.analyzeSelection', async () => {
+    const analyzeSelectionSubscription = vscode.commands.registerCommand('tooning.analyzeSelection', async () => {
         const editor = vscode.window.activeTextEditor;
         if (!editor) return;
 

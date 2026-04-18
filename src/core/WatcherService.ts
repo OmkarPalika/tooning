@@ -1,7 +1,7 @@
 import * as chokidar from 'chokidar';
 import { IndexStore } from '../indexer/IndexStore';
 import { Logger } from '../utils/Logger';
-import { join, relative } from 'path';
+import { relative } from 'path';
 
 export class WatcherService {
     private watcher: chokidar.FSWatcher | null = null;
