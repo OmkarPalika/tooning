@@ -2,7 +2,7 @@
   "name": "tooning",
   "displayName": "Tooning: AI Codebase Chat",
   "description": "Convert natural language queries to TOON by indexing your entire codebase.",
-  "version": "10.0.10",
+  "version": "11.0.0",
   "publisher": "OmkarPalika",
   "license": "MIT",
   "icon": "icon.png",
@@ -229,8 +229,10 @@
     "@vscode/webview-ui-toolkit": "^1.4.0",
     "chokidar": "^5.0.0",
     "commander": "^14.0.3",
+    "fast-glob": "^3.3.3",
     "ignore": "^7.0.5",
     "js-tiktoken": "^1.0.21",
+    "p-limit": "^7.3.0",
     "pdf-parse": "^2.4.5",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz"
   }

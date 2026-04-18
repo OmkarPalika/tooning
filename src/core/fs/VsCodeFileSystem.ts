@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { IFileSystem } from './IFileSystem';
-import { join } from 'path';
+import { join, relative } from 'path';
 
 export class VsCodeFileSystem implements IFileSystem {
     public async readFile(uri: string): Promise<string> {
@@ -25,5 +25,9 @@ export class VsCodeFileSystem implements IFileSystem {
 
     public join(...segments: string[]): string {
         return join(...segments);
+    }
+
+    public relative(from: string, to: string): string {
+        return relative(from, to).replace(/\\/g, '/');
     }
 }

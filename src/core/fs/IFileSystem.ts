@@ -19,8 +19,10 @@ export interface IFileSystem {
      */
     stat(uri: string): Promise<{ size: number, mtime: number }>;
 
-    /**
-     * Joins path segments using the environment's separator.
-     */
     join(...segments: string[]): string;
+
+    /**
+     * Calculates the relative path from 'from' to 'to'.
+     */
+    relative(from: string, to: string): string;
 }

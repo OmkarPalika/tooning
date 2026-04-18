@@ -1,12 +1,16 @@
-import * as vscode from 'vscode';
-
 export class Logger {
-    private static channel: vscode.OutputChannel;
+    private static channel: any; // Type as any to avoid vscode dependency
 
-    public static initialize(context: vscode.ExtensionContext) {
+    public static initialize(context: any) {
         if (!this.channel) {
-            this.channel = vscode.window.createOutputChannel('Tooning');
-            context.subscriptions.push(this.channel);
+            try {
+                // Inline require to avoid top-level dependency crash in Node
+                const vscode = require('vscode');
+                this.channel = vscode.window.createOutputChannel('Tooning');
+                context.subscriptions.push(this.channel);
+            } catch {
+                // Probably CLI environment, channel remains null
+            }
         }
     }
 

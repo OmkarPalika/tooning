@@ -9,6 +9,7 @@ import { SymbolExtractor } from './indexer/SymbolExtractor';
 import { VsCodeSymbolProvider } from './core/symbols/VsCodeSymbolProvider';
 import { VsCodeFileSystem } from './core/fs/VsCodeFileSystem';
 import { VsCodeIndexStorage } from './core/storage/VsCodeIndexStorage';
+import { VsCodeConfiguration } from './ai/VsCodeConfiguration';
 
 export async function activate(context: vscode.ExtensionContext) {
     Logger.initialize(context);
@@ -19,6 +20,7 @@ export async function activate(context: vscode.ExtensionContext) {
     Logger.log('Tooning extension activating...');
 
     const fs = new VsCodeFileSystem();
+    const config = new VsCodeConfiguration();
     const storage = new VsCodeIndexStorage(context);
     const indexStore = new IndexStore(storage, fs);
     await indexStore.initialize();
@@ -27,16 +29,14 @@ export async function activate(context: vscode.ExtensionContext) {
     await historyStore.initialize();
 
     const getScanOptions = () => {
-        const cfg = vscode.workspace.getConfiguration('tooning');
         return {
-            excludeGlobs: cfg.get<string[]>('excludeGlobs', ['**/node_modules/**', '**/.git/**']),
-            maxFileSizeKB: cfg.get<number>('maxFileSizeKB', 500),
+            excludeGlobs: config.getExcludes(),
+            maxFileSizeKB: 500,
             rootPath: vscode.workspace.workspaceFolders?.[0].uri.fsPath || '.'
         };
     };
 
     // 2. Watcher Service (Real-time indexing)
-    const config = vscode.workspace.getConfiguration('tooning');
     const indexMode = config.get<string>('indexMode', 'realtime');
     let watcher: WatcherService | null = null;
     

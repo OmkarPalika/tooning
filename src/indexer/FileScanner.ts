@@ -2,13 +2,15 @@ import { IFileSystem } from '../core/fs/IFileSystem';
 import { DocParser } from '../core/parsers/DocParser';
 import { Logger } from '../utils/Logger';
 import { SymbolExtractor, FileEntry, SymbolEntry } from './SymbolExtractor';
-import { posix } from 'path';
-import ignore from 'ignore';
-import { SecurityManager } from '../utils/SecurityManager';
 import { Tokenizer } from '../utils/Tokenizer';
+import { SecurityManager } from '../utils/SecurityManager';
+import pLimit from 'p-limit';
 
 export class FileScanner {
     
+    /**
+     * Industry-grade workspace scanner with controlled concurrency.
+     */
     public static async scanWorkspace(
         fs: IFileSystem,
         config: { excludeGlobs: string[], maxFileSizeKB: number, rootPath: string },
@@ -17,47 +19,34 @@ export class FileScanner {
         const entries: FileEntry[] = [];
         let totalRawTokens = 0;
 
-        Logger.log('Starting industry-grade universal scan...');
+        Logger.log('Starting industry-grade concurrent scan...');
         const startTime = Date.now();
 
-        // 1. Discovery
+        // 1. Discovery (Fast-Glob handles excludes)
         const allFiles = await fs.findFiles('**/*');
-        const ig = ignore().add(config.excludeGlobs);
-        
-        try {
-            const gitignorePath = fs.join(config.rootPath, '.gitignore');
-            const contents = await fs.readFile(gitignorePath);
-            ig.add(contents);
-        } catch { /* ignore */ }
-
-        const allowedFiles = allFiles.filter(filePath => {
-            const relativePath = filePath.replace(config.rootPath, '').replace(/^[\\/]/, '');
-            return !ig.ignores(relativePath);
-        });
-
-        const totalFiles = allowedFiles.length;
+        const totalFiles = allFiles.length;
         let processedFiles = 0;
 
         if (onProgress) onProgress(0, totalFiles, 0);
 
-        const chunkSize = 20;
-        for (let i = 0; i < allowedFiles.length; i += chunkSize) {
-            const chunk = allowedFiles.slice(i, i + chunkSize);
-            
-            await Promise.all(chunk.map(async (filePath) => {
+        // Industry-grade concurrency control: P-Limit prevents memory exhaustion
+        const limit = pLimit(10); 
+        
+        const tasks = allFiles.map((filePath) => 
+            limit(async () => {
                 const entry = await this.scanSingleFile(fs, filePath, config);
                 if (entry) {
                     entries.push(entry);
-                    // Estimate tokens again for summary
-                    totalRawTokens += Tokenizer.estimateTokens(entry.symbols.map(s => s.name).join(' ')); // approximation or store it
+                    totalRawTokens += Tokenizer.estimateTokens(entry.symbols.map(s => s.name).join(' ')); 
                 }
-            }));
-            
-            processedFiles += chunk.length;
-            if (onProgress) {
-                onProgress(processedFiles, totalFiles, Date.now() - startTime);
-            }
-        }
+                processedFiles++;
+                if (onProgress && processedFiles % 5 === 0) {
+                    onProgress(processedFiles, totalFiles, Date.now() - startTime);
+                }
+            })
+        );
+
+        await Promise.all(tasks);
 
         Logger.log(`Successfully extracted symbols/text from ${entries.length} items.`);
         return { entries, totalRawTokens };
@@ -73,7 +62,7 @@ export class FileScanner {
     ): Promise<FileEntry | null> {
         try {
             // SECURITY GATE
-            const security = SecurityManager.validate(filePath);
+            const security = SecurityManager.validate(filePath, config.rootPath);
             if (!security.safe) return null;
 
             const stats = await fs.stat(filePath);
@@ -99,7 +88,7 @@ export class FileScanner {
             }
 
             return {
-                path: filePath.replace(config.rootPath, '').replace(/^[\\/]/, ''),
+                path: fs.relative(config.rootPath, filePath),
                 language: lang || 'unknown',
                 size: stats.size,
                 lastModified: stats.mtime,
@@ -112,7 +101,10 @@ export class FileScanner {
     }
 
     public static inferLanguage(filePath: string): string | null {
-        const ext = posix.extname(filePath).toLowerCase();
+        const parts = filePath.split('.');
+        if (parts.length < 2) return null;
+        const ext = `.${parts.pop()?.toLowerCase()}`;
+
         switch (ext) {
             case '.js': case '.jsx': return 'javascript';
             case '.ts': case '.tsx': return 'typescript';

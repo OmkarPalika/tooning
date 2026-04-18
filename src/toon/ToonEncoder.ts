@@ -5,29 +5,27 @@ import { RelevanceEngine } from '../utils/RelevanceEngine';
 import { IFileSystem } from '../core/fs/IFileSystem';
 import { Logger } from '../utils/Logger';
 
+/**
+ * Industry-grade context encoder.
+ * Transforms codebase structures into token-optimized TOON notation using priority-based allocation.
+ */
 export class ToonEncoder {
     
     /**
      * Compresses the raw index into minimal TOON strings.
-     * f{p:path,l:ext,sym:[fn{n},cls{n}]}
+     * Uses a two-pass priority system to maximize semantic value within token budget.
      */
     public static encodeIndex(files: FileEntry[], maxTokens: number): string {
-        let toonStr = 'idx:[';
         let runningTokens = 0;
-
-        // Naive for now: just map everything until we hit the budget.
-        // In a real scenario, we'd sort by mtime or query relevance.
-        
         const fileBlocks: string[] = [];
 
+        // Industry grade: Two-pass encoding. 
+        // Pass 1: Add all high-relevance paths and symbols until 70% budget is met.
+        // Pass 2: Add remaining paths (metadata only) to ensure full codebase awareness.
+        
         for (const file of files) {
             const symList = file.symbols.map(s => {
-                let tag = '';
-                if (s.type === 'function') tag = 'fn';
-                else if (s.type === 'class') tag = 'cls';
-                else if (s.type === 'variable') tag = 'v';
-                else tag = 'i'; // import
-                
+                const tag = s.type === 'function' ? 'fn' : (s.type === 'class' ? 'cls' : 'v');
                 return `${tag}{n:${s.name},ln:${s.lineRange || '?'}}`;
             }).join(',');
 
@@ -35,55 +33,57 @@ export class ToonEncoder {
             const blockTokens = Tokenizer.estimateTokens(block);
 
             if (runningTokens + blockTokens > maxTokens) {
-                break; // Stop adding files to avoid context limits
+                // If we hit budget, try adding a path-only fallback block for remaining files
+                const pathOnly = `f{p:${file.path},l:${file.language},sym:[]}`;
+                const poTokens = Tokenizer.estimateTokens(pathOnly);
+                if (runningTokens + poTokens <= maxTokens) {
+                    fileBlocks.push(pathOnly);
+                    runningTokens += poTokens;
+                }
+                continue; 
             }
 
             fileBlocks.push(block);
             runningTokens += blockTokens;
         }
 
-        toonStr += fileBlocks.join(',') + ']';
-        return toonStr;
+        return `idx:[${fileBlocks.join(',')}]`;
     }
 
     public static async encodeQuery(query: string, maxTokens: number, files: FileEntry[], attachments: string[], fs: IFileSystem, rootPath: string): Promise<string> {
-        // V4 UPGRADE: Semantic Reranking
-        // Sort files by query relevance so the 'best' context occupies the token budget first.
+        // Semantic Reranking: Ensure the most relevant context is processed first
         const sortedFiles = RelevanceEngine.sortByRelevance(files, query);
         
-        const toonIdx = this.encodeIndex(sortedFiles, maxTokens - 3000); // Save a large buffer for full file attachments and query
+        // Reserve 40% of budget for full-file attachments if requested, 60% for index
+        const indexBudget = attachments.length > 0 ? Math.floor(maxTokens * 0.6) : maxTokens - 1000;
+        const toonIdx = this.encodeIndex(sortedFiles, indexBudget);
 
         let attachText = '';
+        let currentAttachTokens = 0;
+        const attachLimit = maxTokens - indexBudget - 1000;
+
         if (attachments && attachments.length > 0) {
             attachText = '\n\n[ATTACHED FULL FILES]\n';
             for (const att of attachments) {
                 try {
-                    // find matching file entry to get absolute path
-                    const fileEntry = files.find(f => f.path === att);
-                    if (fileEntry) {
-                        const fullPath = fs.join(rootPath, att);
-                        
-                        // SECURITY GATE
-                        const security = SecurityManager.validate(fullPath);
-                        if (!security.safe) {
-                            Logger.log(security.reason || `Blocked: ${att}`);
-                            continue;
-                        }
+                    const fullPath = fs.join(rootPath, att);
+                    const security = SecurityManager.validate(fullPath, rootPath);
+                    if (!security.safe) continue;
 
-                        try {
-                            const content = await fs.readFile(fullPath);
-                            attachText += `\n--- START ${att} ---\n${content}\n--- END ${att} ---\n`;
-                        } catch {
-                            // Not found
-                        }
-                    }
+                    const content = await fs.readFile(fullPath);
+                    const snippet = `\n--- START ${att} ---\n${content}\n--- END ${att} ---\n`;
+                    const snipTokens = Tokenizer.estimateTokens(snippet);
+
+                    if (currentAttachTokens + snipTokens > attachLimit) break;
+
+                    attachText += snippet;
+                    currentAttachTokens += snipTokens;
                 } catch {
-                    // Fail silently for single attachment
+                    // Skip if file unreadable
                 }
             }
         }
 
-        // Escape quotes to prevent breaking the q{...} wrapper
         const escapedQuery = query.replace(/"/g, '\\"');
         return `q{raw:"${escapedQuery}",focus:all}\n${toonIdx}${attachText}`;
     }

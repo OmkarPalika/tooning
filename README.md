@@ -1,61 +1,58 @@
 # 🗿 Tooning: AI Codebase Chat
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/Version-10.0.10-blue.png)](https://marketplace.visualstudio.com/manage/publishers/OmkarPalika/extensions/tooning/hub)
-[![Installs](https://img.shields.io/badge/Installs-Marketplace-green.png)](https://marketplace.visualstudio.com/manage/publishers/OmkarPalika/extensions/tooning/hub)
+[![Version](https://img.shields.io/badge/Version-11.0.0-blue.png)](https://marketplace.visualstudio.com/manage/publishers/OmkarPalika/extensions/tooning/hub)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/OmkarPalika/tooning/ci.yml?branch=master&logo=github&label=Build&format=png)](https://github.com/OmkarPalika/tooning/actions)
 
-**Tooning** is an industry-grade codebase analyzer and semantic reranking engine designed to bridge the gap between your local source code and Large Language Models (LLMs). It converts your complex project structure into high-density **TOON payloads**, optimized specifically for context-aware AI chat.
+**Tooning** is an industry-grade codebase analyzer and semantic context engine. It bridges the gap between your local source code and Large Language Models (LLMs) by converting complex project hierarchies into high-density **TOON payloads**.
 
 ---
 
 ## 🔥 Key Features
 
-- **🚀 Real-Time Incremental Indexing**: Powered by Chokidar. Tooning tracks changes as you type, ensuring the AI always has the freshest context without CPU-heavy rescans.
-- **🧠 Semantic Reranking (BM25-lite)**: Not all files are equal. Tooning uses an integrated relevance engine to prioritize files that actually matter to your query.
-- **📄 Multimodal Document Support**: Index PDFs and Excel sheets alongside your code. Perfect for RAG-style analysis of technical documentation or data assets.
-- **🖥️ Universal Architecture**: Works as a premium VS Code extension OR a standalone CLI tool—compatible with Cursor, Claude Code, and any terminal.
-- **📊 Efficiency Dashboard**: Real-time instrumentation showing token savings and compression metrics.
+- **🚀 Concurrent Industrial Scanner**: High-performance multi-threaded scanning using `fast-glob` and `p-limit` for instant indexing of massive monorepos.
+- **🧠 Universal Context Engine**: Environment-agnostic core logic that runs identically in VS Code or any standalone terminal.
+- **💬 Interactive CLI REPL**: Start a context-aware conversation with your codebase directly from your shell with `toon chat`.
+- **📄 Multimodal Native**: Full support for PDFs and Excel sheets; documentation is indexed and prioritized alongside source code.
+- **🛡️ Security Gates**: Automatic blocking of sensitive files (.env, .pem, .key) via industry-standard patterns.
 
 ---
 
 ## 🛠️ Usage
 
-### Within VS Code
-1. Install from the [Marketplace](https://marketplace.visualstudio.com/manage/publishers/OmkarPalika/extensions/tooning/hub).
-2. Open the **Tooning** panel in the Activity Bar.
-3. Chat with your codebase. Use `@filename` or `/command` to target specific areas.
-
 ### Using the CLI (`toon`)
-Tooning is fully weaponized for the terminal. Use it to feed context to tools like Claude Code or Aider:
+Tooning is a standalone powerhouse for terminal enthusiasts:
 
 ```bash
-# Generate a TOON payload for a specific query
-toon ./src -q "How does the indexing core work?"
+# Initialize your configuration (Mistral, OpenAI, Anthropic, Ollama)
+toon config set provider mistral
+toon config set apiKey YOUR_KEY
 
-# Enable real-time watch mode
-toon ./src --watch
+# Start an interactive, context-aware chat
+toon chat
+
+# Generate a one-off TOON payload for external tools (Cursor/Claude)
+toon encode . -q "How is concurrency handled?"
 ```
 
----
-
-## 🔋 Industry-Grade Foundation
-
-Tooning isn't just a script; it's a modular engineering asset built with:
-- **`IFileSystem` Abstraction**: Decoupled from IDE APIs for cross-environment portability.
-- **Security-First Gates**: Native blocking of `.env`, `.pem`, and sensitive keys.
-- **Symbol Extraction**: High-fidelity symbol extraction with VS Code LSP integration.
+### Within VS Code
+1. Install from the [Marketplace](https://marketplace.visualstudio.com/manage/publishers/OmkarPalika/extensions/tooning/hub).
+2. Use the **Tooning** panel in the Activity Bar for a rich, integrated chat experience.
 
 ---
 
-## 🤝 Contributing
+## 🏛️ Industry-Grade Foundation
 
-We welcome contributions! Whether it's adding a new file parser or optimizing the re-ranking logic.
-Please see our [CONTRIBUTING.md](./CONTRIBUTING.md) for onboarding instructions.
+Built for production reliability:
+- **`IConfiguration` Abstraction**: Shared settings lifecycle across extension and CLI.
+- **High-Fidelity Symbols**: Fallback structural extraction for 10+ professional languages (Go, Rust, Python, C++, etc.).
+- **Token Efficiency**: Two-pass priority encoding to maximize semantic value within context windows.
+
+---
 
 ## ⚖️ License
 
-Distributed under the **MIT License**. See [LICENSE](./LICENSE) for more information.
+Distributed under the **MIT License**. See [LICENSE](./LICENSE) for details.
 
 ---
 

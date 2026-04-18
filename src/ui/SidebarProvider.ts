@@ -6,18 +6,22 @@ import { IndexStore } from '../indexer/IndexStore';
 import { HistoryStore } from '../history/HistoryStore';
 import { ToonEncoder } from '../toon/ToonEncoder';
 import { ToonDecoder } from '../toon/ToonDecoder';
-import { ProviderFactory } from '../ai/ProviderFactory';
+import { VsCodeConfiguration } from '../ai/VsCodeConfiguration';
 import { VsCodeFileSystem } from '../core/fs/VsCodeFileSystem';
+import { ProviderFactory } from '../ai/ProviderFactory';
 
 export class SidebarProvider implements vscode.WebviewViewProvider {
     public static readonly viewType = 'tooning.chatView';
     private _view?: vscode.WebviewView;
+    private config: VsCodeConfiguration;
 
     constructor(
         private readonly _extensionUri: vscode.Uri,
         private readonly indexStore: IndexStore,
         private readonly historyStore: HistoryStore
-    ) { }
+    ) { 
+        this.config = new VsCodeConfiguration();
+    }
 
     public resolveWebviewView(
         webviewView: vscode.WebviewView,
@@ -86,9 +90,8 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
         this._view.webview.postMessage({ type: 'addMessage', role: 'assistant', content: 'Analyzing your workspace...' });
 
         try {
-            const config = vscode.workspace.getConfiguration('tooning');
-            const maxTokens = config.get<number>('maxContextTokens', 16000);
-            const showRaw = config.get<boolean>('showRawToon', true);
+            const maxTokens = this.config.getMaxTokens();
+            const showRaw = this.config.get<boolean>('showRawToon', true);
 
             // Extract @attachments
             const matchAttachments = prompt.match(/@([\w/.-]+(?:\\\.[\w]+)*)/g);
@@ -138,7 +141,7 @@ Rules:
 3. Maintain strict JSON conformity.`;
             }
 
-            const provider = ProviderFactory.createProvider();
+            const provider = ProviderFactory.createProvider(this.config);
             
             // Streaming extraction
             let rawBuffer = "";

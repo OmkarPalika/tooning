@@ -7,9 +7,9 @@ export class WatcherService {
     private watcher: chokidar.FSWatcher | null = null;
     private indexStore: IndexStore;
     private rootPath: string;
-    private options: { maxFileSizeKB: number, rootPath: string };
+    private options: { maxFileSizeKB: number, rootPath: string, excludeGlobs: string[] };
 
-    constructor(indexStore: IndexStore, rootPath: string, options: { maxFileSizeKB: number, rootPath: string }) {
+    constructor(indexStore: IndexStore, rootPath: string, options: { maxFileSizeKB: number, rootPath: string, excludeGlobs: string[] }) {
         this.indexStore = indexStore;
         this.rootPath = rootPath;
         this.options = options;
