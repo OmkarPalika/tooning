@@ -111,7 +111,7 @@ export class FileScanner {
         }
     }
 
-    private static inferLanguage(filePath: string): string | null {
+    public static inferLanguage(filePath: string): string | null {
         const ext = posix.extname(filePath).toLowerCase();
         switch (ext) {
             case '.js': case '.jsx': return 'javascript';

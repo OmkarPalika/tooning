@@ -1,30 +1,63 @@
-# Tooning: AI Codebase Chat
+# 🚀 Tooning: AI Codebase Chat
 
-Tooning is a VS Code extension that converts your natural language queries into TOON (Token Oriented Object Notation) by automatically indexing your local codebase structure, dramatically reducing context tokens while keeping AI accuracy high.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Marketplace](https://img.shields.io/visual-studio-marketplace/v/omkar.tooning.svg?label=VS%20Code)](https://marketplace.visualstudio.com/items?itemName=omkar.tooning)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/omkar/tooning/ci.yml?branch=master)](https://github.com/omkar/tooning/actions)
 
-## Features
+**Tooning** is an industry-grade codebase analyzer and semantic reranking engine designed to bridge the gap between your local source code and Large Language Models (LLMs). It converts your complex project structure into high-density **TOON payloads**, optimized specifically for context-aware AI chat.
 
-- **Codebase Indexing**: Scans your workspace on save or interval to keep an up-to-date index of functions, classes, and variables.
-- **Token Efficiency**: Converts index data into minimal TOON format, saving huge amounts of context window space.
-- **Provider Agnostic**: Works with Mistral (default), OpenAI, Anthropic, OpenRouter, and Ollama (local).
-- **Interactive UI**: A sleek sidebar webview allows you to chat directly with your codebase.
+---
 
-## Setup
+## 🔥 Key Features
 
-1. Open VS Code Settings (`Ctrl+,`).
-2. Search for `Tooning`.
-3. Set your preferred AI Provider (`tooning.provider`).
-4. Enter your API Key (`tooning.apiKey`) if not using a local provider like Ollama.
-5. Hit the **"Tooning"** icon in the Activity Bar to start chatting!
+- **🚀 Real-Time Incremental Indexing**: Powered by Chokidar. Tooning tracks changes as you type, ensuring the AI always has the freshest context without CPU-heavy rescans.
+- **🧠 Semantic Reranking (BM25-lite)**: Not all files are equal. Tooning uses an integrated relevance engine to prioritize files that actually matter to your query.
+- **📄 Multimodal Document Support**: Index PDFs and Excel sheets alongside your code. Perfect for RAG-style analysis of technical documentation or data assets.
+- **🖥️ Universal Architecture**: Works as a premium VS Code extension OR a standalone CLI tool—compatible with Cursor, Claude Code, and any terminal.
+- **📊 Efficiency Dashboard**: Real-time instrumentation showing token savings and compression metrics.
 
-### Local / Ollama Support
+---
 
-To use Ollama locally without an API key:
-- Set `Tooning: Provider` to `ollama`.
-- Ensure `Tooning: Custom Base Url` is pointing to your Ollama chat endpoint (e.g., `http://localhost:11434/api/chat`).
-- Set `Tooning: Model` to your downloaded model name (e.g., `llama3`).
+## 🛠️ Usage
 
-## Commands
+### Within VS Code
+1. Install from the [Marketplace](https://marketplace.visualstudio.com/items?itemName=omkar.tooning).
+2. Open the **Tooning** panel in the Activity Bar.
+3. Chat with your codebase. Use `@filename` or `/command` to target specific areas.
 
-- `Tooning: Re-index Workspace` - Forces a manual deep rescan of all non-ignored files.
-- `Tooning: Clear Chat History` - Wipes your current conversation history.
+### Using the CLI (`toon`)
+Tooning is fully weaponized for the terminal. Use it to feed context to tools like Claude Code or Aider:
+
+```bash
+# Generate a TOON payload for a specific query
+toon ./src -q "How does the indexing core work?"
+
+# Enable real-time watch mode
+toon ./src --watch
+```
+
+---
+
+## 🔋 Industry-Grade Foundation
+
+Tooning isn't just a script; it's a modular engineering asset built with:
+- **`IFileSystem` Abstraction**: Decoupled from IDE APIs for cross-environment portability.
+- **Security-First Gates**: Native blocking of `.env`, `.pem`, and sensitive keys.
+- **Symbol Extraction**: High-fidelity symbol extraction with VS Code LSP integration.
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions! Whether it's adding a new file parser or optimizing the re-ranking logic.
+Please see our [CONTRIBUTING.md](./CONTRIBUTING.md) for onboarding instructions.
+
+## ⚖️ License
+
+Distributed under the **MIT License**. See `LICENSE` for more information.
+
+---
+
+<p align="center">
+  Built with ❤️ for the AI-first engineering community.
+</p>
