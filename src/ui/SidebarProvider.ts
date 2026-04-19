@@ -91,7 +91,6 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
 
         try {
             const maxTokens = this.config.getMaxTokens();
-            const showRaw = this.config.get<boolean>('showRawToon', true);
 
             // Extract @attachments
             const matchAttachments = prompt.match(/@([\w/.-]+(?:\\\.[\w]+)*)/g);
@@ -164,7 +163,8 @@ Rules:
             let finalMarkdown = '';
             
             if (decoded) {
-                finalMarkdown = ToonDecoder.renderMarkdown(decoded, showRaw ? finalResponseContent : 'Hidden by settings');
+                const rootPath = vscode.workspace.workspaceFolders?.[0].uri.fsPath || '';
+                finalMarkdown = ToonDecoder.renderMarkdown(decoded, rootPath, finalResponseContent);
             } else {
                 // CASUAL CHAT: Just show the raw response as markdown
                 finalMarkdown = finalResponseContent;

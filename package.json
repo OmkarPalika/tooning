@@ -2,7 +2,7 @@
   "name": "tooning",
   "displayName": "Tooning: AI Codebase Chat",
   "description": "Convert natural language queries to TOON by indexing your entire codebase.",
-  "version": "11.1.0",
+  "version": "18.1.0",
   "publisher": "OmkarPalika",
   "license": "MIT",
   "icon": "icon.png",
@@ -144,8 +144,8 @@
         },
         "tooning.customBaseUrl": {
           "type": "string",
-          "default": "http://localhost:11434/api/chat",
-          "description": "Custom Base URL (e.g. for Ollama or OpenRouter)."
+          "default": "http://localhost:11434/v1/chat/completions",
+          "description": "Base URL for OpenAI-compatible APIs (Mistral, Ollama, Anthropic proxy)."
         },
         "tooning.indexMode": {
           "type": "string",
@@ -216,6 +216,9 @@
     "test:ui": "vitest --ui"
   },
   "devDependencies": {
+    "@types/figlet": "^1.7.0",
+    "@types/gradient-string": "^1.1.6",
+    "@types/marked-terminal": "^6.1.1",
     "@types/node": "^25.6.0",
     "@types/vscode": "^1.116.0",
     "@typescript-eslint/eslint-plugin": "^8.58.2",
@@ -226,12 +229,24 @@
     "vitest": "^4.1.4"
   },
   "dependencies": {
+    "@omkarpalika/tooning": "^11.1.0",
     "@vscode/webview-ui-toolkit": "^1.4.0",
+    "boxen": "^8.0.1",
+    "chalk": "^5.6.2",
     "chokidar": "^5.0.0",
+    "cli-cursor": "^5.0.0",
+    "cli-highlight": "^2.1.11",
     "commander": "^14.0.3",
+    "enquirer": "^2.4.1",
     "fast-glob": "^3.3.3",
+    "figlet": "^1.11.0",
+    "gradient-string": "^3.0.0",
+    "highlight.js": "^11.11.1",
     "ignore": "^7.0.5",
     "js-tiktoken": "^1.0.21",
+    "marked": "^15.0.12",
+    "marked-terminal": "^7.3.0",
+    "ora": "^9.3.0",
     "p-limit": "^7.3.0",
     "pdf-parse": "^2.4.5",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz"

@@ -1,60 +1,113 @@
-import * as vscode from 'vscode';
-import { join } from 'path';
-import { Logger } from '../utils/Logger';
+import * as fs from 'fs';
+import * as path from 'path';
+import { homedir } from 'os';
 
-export interface ChatMessage {
-    id: string;
-    role: 'user' | 'assistant';
-    content: string; // The raw or markdown content
-    timestamp: number;
-}
-
+/**
+ * Platform-agnostic history persistence supporting both CLI command history
+ * and VSCode structured message history.
+ */
 export class HistoryStore {
-    private storageUri: vscode.Uri;
-    private messages: ChatMessage[] = [];
+    private historyPath?: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    private context?: any; // vscode.ExtensionContext
+    
+    // CLI Command History
+    private entries: string[] = [];
+    
+    // VSCode Message History
+    private messages: { role: string, content: string }[] = [];
+    
+    private maxEntries: number = 1000;
 
-    constructor(context: vscode.ExtensionContext) {
-        this.storageUri = vscode.Uri.file(join(context.globalStorageUri.fsPath, 'tooning_history.json'));
-    }
-
-    public async initialize() {
-        try {
-            const u8 = await vscode.workspace.fs.readFile(this.storageUri);
-            const data = JSON.parse(Buffer.from(u8).toString('utf8'));
-            if (Array.isArray(data)) {
-                this.messages = data;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    constructor(context?: any) {
+        this.context = context;
+        if (!context) {
+            const dir = path.join(homedir(), '.tooning');
+            if (!fs.existsSync(dir)) {
+                fs.mkdirSync(dir, { recursive: true });
             }
-        } catch {
-            this.messages = [];
+            this.historyPath = path.join(dir, 'shell_history.txt');
         }
     }
 
-    public addMessage(msg: Omit<ChatMessage, 'id' | 'timestamp'>) {
-        const fullMsg: ChatMessage = {
-            ...msg,
-            id: Math.random().toString(36).substring(2, 9),
-            timestamp: Date.now()
-        };
-        this.messages.push(fullMsg);
-        this.persist();
-        return fullMsg;
+    /**
+     * Initialize the store based on the detected platform.
+     */
+    public async initialize() {
+        if (this.context) {
+            this.messages = this.context.globalState.get('history_messages', []);
+        } else if (this.historyPath) {
+            this.loadCliHistory();
+        }
     }
 
-    public getMessages(): ChatMessage[] {
-        return this.messages;
+    private loadCliHistory() {
+        if (this.historyPath && fs.existsSync(this.historyPath)) {
+            try {
+                const content = fs.readFileSync(this.historyPath, 'utf8');
+                this.entries = content.split('\n').filter(line => line.trim() !== '');
+            } catch (e) {
+                console.error('HistoryStore: Failed to load CLI history', e);
+            }
+        }
     }
 
-    public async clear() {
+    /**
+     * Save history to persistent storage.
+     */
+    public save() {
+        if (this.context) {
+            this.context.globalState.update('history_messages', this.messages);
+        } else if (this.historyPath) {
+            try {
+                const data = this.entries.join('\n');
+                fs.writeFileSync(this.historyPath, data, 'utf8');
+            } catch (e) {
+                console.error('HistoryStore: Failed to save CLI history', e);
+            }
+        }
+    }
+
+    /**
+     * Clear all history entries for current platform.
+     */
+    public clear() {
+        this.entries = [];
         this.messages = [];
-        await this.persist();
+        this.save();
     }
 
-    private async persist() {
-        try {
-            const u8 = Buffer.from(JSON.stringify(this.messages, null, 2), 'utf8');
-            await vscode.workspace.fs.writeFile(this.storageUri, u8);
-        } catch (e) {
-            Logger.error('Failed to save history', e);
-        }
+    // --- CLI METHODS ---
+
+    /**
+     * Add a new entry to the command history (CLI).
+     */
+    public add(entry: string) {
+        if (!entry || entry.trim() === '') return;
+        const idx = this.entries.indexOf(entry);
+        if (idx !== -1) this.entries.splice(idx, 1);
+        this.entries.push(entry);
+        if (this.entries.length > this.maxEntries) this.entries = this.entries.slice(-this.maxEntries);
+        this.save();
+    }
+
+    public getEntries(): string[] {
+        return [...this.entries];
+    }
+
+    // --- VSCODE METHODS ---
+
+    /**
+     * Add a new message to the structured history (VSCode).
+     */
+    public addMessage(message: { role: string, content: string }) {
+        this.messages.push(message);
+        if (this.messages.length > this.maxEntries) this.messages.shift();
+        this.save();
+    }
+
+    public getMessages(): { role: string, content: string }[] {
+        return [...this.messages];
     }
 }

@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [18.1.0] - 2026-04-19
+### Added
+- **Full TOON Protocol Encoding**: Natively supports Token Oriented Object Notation with unquoted keys for maximum token density.
+- **Precision Persistence UI**: Recalibrated the cinematic REPL to ensure absolute user query visibility and terminal history preservation.
+- **High-Resiliency Decoder**: Implemented a multi-pass normalizer and Regex fallback extractor to handle malformed or conversational LLM payloads.
+- **Industrial Branding**: Rebranded diagnostic raw blocks to "Industrial TOON Payload" with copy-paste optimized aesthetics.
+
+### Fixed
+- Resolved vertical screen "flicker" by implementing industrial log-level suppression during active chat sessions.
+- Corrected the "@path" duplication glitch in the autocomplete suggestion engine.
+- Hardened the decoding engine against unescaped backticks and conversational drifts in AI responses.
+
 ## [10.0.1] - 2026-04-18
 ### Removed
 - Dropped support for Node.js 18.x in CI due to `vitest` compatibility requirements.

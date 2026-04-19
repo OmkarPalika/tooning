@@ -27,8 +27,7 @@ export class ChatGPTProvider implements AIProvider {
                 { role: 'system', content: systemPrompt },
                 { role: 'user', content: prompt }
             ],
-            stream: stream,
-            response_format: { type: "json_object" }
+            stream: stream
         };
     }
 

@@ -58,7 +58,7 @@ export class NodeConfiguration implements IConfiguration {
     }
 
     getCustomBaseUrl(): string {
-        return this.get<string>('customBaseUrl', 'http://localhost:11434/api/chat');
+        return this.get<string>('customBaseUrl', 'http://localhost:11434/v1/chat/completions');
     }
 
     getMaxTokens(): number {
